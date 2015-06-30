@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - particles - waves</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    	<link href="css/1d_wave_simulation.css" rel="stylesheet">
+	</head>
+	<body>
+		<div id="container"></div>
+		<script src="libraries/three.min.js"></script>
+		<script src="js/renderers/Projector.js"></script>
+		<script src="js/renderers/CanvasRenderer.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+		
+
+
+		<script type="x-shader/x-vertex" id="vertexshader">
+
+			attribute float size;
+			attribute vec3 customColor;
+
+			varying vec3 vColor;
+
+			void main() {
+
+				vColor = customColor;
+
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+				gl_PointSize = size * ( 300.0 / length( mvPosition.xyz ) );
+
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+
+			uniform vec3 color;
+			uniform sampler2D texture;
+
+			varying vec3 vColor;
+
+			void main() {
+
+				gl_FragColor = vec4( color * vColor, 1.0 );
+
+				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+
+			}
+
+		</script>
+
+		<script src="3d_wave_simulation.js"></script>
+
+	</body>
+</html>

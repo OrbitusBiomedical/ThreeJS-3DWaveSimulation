@@ -212,7 +212,6 @@ function onDocumentMouseDown( event ) {
          iY > 0 && iY < NY-1 &&
          iZ > 0 && iZ < NZ-1)
     {
-        debugger
         InputIndexX = iX;
         InputIndexY = iY;
         InputIndexZ = iZ;

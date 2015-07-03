@@ -4,7 +4,7 @@ var plane;
 var WaveSpeed = 0.5;
 
 var WorldSize = 10.0;
-var NX = 30;
+var NX = 50;
 var NY = NX;
 var NZ = NX;
 var ArraySize = NX * NY * NZ; //65536
@@ -216,7 +216,7 @@ function onDocumentMouseDown( event ) {
         InputIndexY = iY;
         InputIndexZ = iZ;
 
-        InputHeight = 5000.0;
+        InputHeight = 10000.0;
         InputActive = true;
     }
 
@@ -390,7 +390,7 @@ function SetInitialState()
     for (var k = 0; k < NZ; k++) {
     	for (var j = 0; j < NY; j++) {
       		for (var i = 0; i < NX; i++) {
-       			State[StateHeightIndex][IX(i, j, k)] = 0.5;
+       			State[StateHeightIndex][IX(i, j, k)] = 3.0;
         		State[StateVelIndex][IX(i, j, k)] = 0.0;
 
         		State[StateHeightPrevIndex][IX(i, j, k)] = 0.0;
@@ -642,7 +642,9 @@ function render() {
 	var i = 0;
 	var currentHeight;
 	var relativeHeight;
-	maxHeight = 100;
+	maxHeight = 40;
+	var maxScale = 40.0;
+	var relativeColor;
 
 	var color = new THREE.Color();
 
@@ -652,7 +654,14 @@ function render() {
 
 			for ( var iz = 0; iz < AMOUNTZ; iz ++ ) {
 				currentHeight = State[StateHeightIndex][IX(ix,iy,iz)];
-				size[ i ] = 1+State[StateHeightIndex][IX(ix,iy,iz)]*10;
+				
+				if (3*State[StateHeightIndex][IX(ix,iy,iz)] < maxScale)
+				{
+					size[ i ] = 0 + 10*State[StateHeightIndex][IX(ix,iy,iz)]-20;	
+				}
+				else{
+					size[ i ] = maxScale;
+				} 
 
 
 				//if (currentHeight > maxHeight)
@@ -663,8 +672,13 @@ function render() {
 				//red =0 and blue = .667 (~2/3)
 				relativeHeight = currentHeight/maxHeight;
 				//console.log(relativeHeight);
+				relativeColor = 0.89 - (relativeHeight)*3.0 < 0.0;
+				if (relativeColor < 0.0)
+				{
+					relativeColor = 0.0;
+				}
 
-				color.setHSL( 0.70 - (relativeHeight)*0.75 , 1.0, 0.5 );
+				color.setHSL( 0.89 - (relativeHeight)*3.0 , 1.0, 0.5 );
 
 				values_color[ i * 3 + 0 ] = color.r;
 				values_color[ i * 3 + 1 ] = color.g;

@@ -62,6 +62,7 @@ var mouse = new THREE.Vector2()
 var particle_count = ArraySize;
 var halfParticle_count = NX/2.0;
 
+var maxHeight = 0;
 //---
 
 
@@ -70,7 +71,7 @@ var halfParticle_count = NX/2.0;
 
 var SEPARATION = 20, AMOUNTX = NX, AMOUNTY = NY,  AMOUNTZ = NX;
 
-var renderer, scene, camera, stats;
+var renderer, scene, camera, controls, stats;
 
 var particleSystem, uniforms, geometry;
 
@@ -85,6 +86,11 @@ function init() {
 
 	camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 1, 10000 );
 	camera.position.z = 500;
+
+	controls = new THREE.OrbitControls( camera );
+	controls.damping = .2;
+	controls.addEventListener( 'change', render );
+
 
 	scene = new THREE.Scene();
 
@@ -141,16 +147,10 @@ function init() {
 				for ( var iz=-NZ/2; iz<NZ/2; iz++)
 				{
 					values_size[ v ] = 1;
-					//console.log("(", ix*5, ",", iy*5, ")");
-					//positions[ v * 3 + 0 ] = ( Math.random() * 2 - 1 ) * radius;
-					//positions[ v * 3 + 1 ] = ( Math.random() * 2 - 1 ) * radius;
-					//positions[ v * 3 + 2 ] = ( Math.random() * 2 - 1 ) * radius;
 
 					positions[ v * 3 + 0 ] = ix*5;
 					positions[ v * 3 + 1 ] = iy*5;
 					positions[ v * 3 + 2 ] = iz*5;
-
-
 
 					color.setHSL( v / particle_count, 1.0, 0.5 );
 
@@ -637,22 +637,46 @@ function render() {
 	TimeStep( 1.0 / 24.0 );
 
 	var size = geometry.attributes.size.array;
+	var values_color = geometry.attributes.customColor.array;
 
 	var i = 0;
+	var currentHeight;
+	var relativeHeight;
+	maxHeight = 100;
+
+	var color = new THREE.Color();
 
 	for ( var ix = 0; ix < AMOUNTX; ix ++ ) {
 
 		for ( var iy = 0; iy < AMOUNTY; iy ++ ) {
 
 			for ( var iz = 0; iz < AMOUNTZ; iz ++ ) {
+				currentHeight = State[StateHeightIndex][IX(ix,iy,iz)];
+				size[ i ] = 1+State[StateHeightIndex][IX(ix,iy,iz)]*10;
 
-				size[ i ] = 1+State[StateHeightIndex][IX(ix,iy,iz)] * 10;
+
+				//if (currentHeight > maxHeight)
+				//{
+				//	maxHeight = currentHeight;
+				//}
+
+				//red =0 and blue = .667 (~2/3)
+				relativeHeight = currentHeight/maxHeight;
+				//console.log(relativeHeight);
+
+				color.setHSL( 0.70 - (relativeHeight)*0.75 , 1.0, 0.5 );
+
+				values_color[ i * 3 + 0 ] = color.r;
+				values_color[ i * 3 + 1 ] = color.g;
+				values_color[ i * 3 + 2 ] = color.b;
+
 
 				i++
 			}
 		}
 
 	}
+	geometry.attributes.customColor.needsUpdate = true;
 	geometry.attributes.size.needsUpdate = true;
 
 	renderer.render( scene, camera );
